@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Brief — Set Up Your Profile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header .monogram {
+            display: inline-block;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ffffff;
+            border: 2px solid #333;
+            padding: 12px 20px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #888;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 36px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #666;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        /* Form elements */
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #ccc;
+            margin-bottom: 6px;
+        }
+
+        label .hint {
+            font-weight: 400;
+            color: #666;
+            font-size: 13px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 15px;
+            font-family: inherit;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #444;
+        }
+
+        input::placeholder { color: #444; }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .row input, .row select {
+            margin-bottom: 20px;
+        }
+
+        /* Checkbox grid */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            user-select: none;
+        }
+
+        .checkbox-item:hover {
+            border-color: #444;
+        }
+
+        .checkbox-item.checked {
+            border-color: #555;
+            background: #1a1a1a;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            accent-color: #888;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-item span {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Market sub-sections */
+        .market-group {
+            margin-bottom: 16px;
+        }
+
+        .market-group-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        /* Submit */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 12px;
+        }
+
+        .submit-btn:hover { opacity: 0.85; }
+
+        /* Success state */
+        .success {
+            display: none;
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        .success.visible {
+            display: block;
+        }
+
+        .success h2 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .success p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .success .filename {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #141414;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #ccc;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 32px 16px 64px; }
+            .checkbox-grid { grid-template-columns: 1fr; }
+            .row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="monogram">DB</div>
+        <h1>Set Up Your Daily Brief</h1>
+        <p>Fill this out to configure your personalized intelligence brief.<br>Takes about 2 minutes.</p>
+    </div>
+
+    <form id="profileForm">
+
+        <!-- ABOUT YOU -->
+        <div class="section">
+            <div class="section-title">About You</div>
+            <div class="row">
+                <div>
+                    <label for="initials">Initials <span class="hint">(shown in email header)</span></label>
+                    <input type="text" id="initials" placeholder="JD" maxlength="5" required>
+                </div>
+                <div>
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" placeholder="you@example.com" required>
+                </div>
+            </div>
+            <label for="timezone">Timezone</label>
+            <select id="timezone">
+                <option value="America/New_York">Eastern Time (New York)</option>
+                <option value="America/Chicago">Central Time (Chicago)</option>
+                <option value="America/Denver">Mountain Time (Denver)</option>
+                <option value="America/Los_Angeles">Pacific Time (Los Angeles)</option>
+                <option value="Europe/London">London (GMT/BST)</option>
+                <option value="Europe/Paris">Central Europe (Paris/Berlin)</option>
+                <option value="Europe/Zurich">Zurich</option>
+                <option value="Asia/Jerusalem">Israel (Jerusalem)</option>
+                <option value="Asia/Dubai">Dubai (GST)</option>
+                <option value="Asia/Singapore">Singapore</option>
+                <option value="Asia/Tokyo">Tokyo (JST)</option>
+                <option value="Australia/Sydney">Sydney (AEST)</option>
+            </select>
+        </div>
+
+        <!-- NEWS INTERESTS -->
+        <div class="section">
+            <div class="section-title">What do you care about?</div>
+            <p style="font-size: 13px; color: #666; margin-bottom: 14px;">Pick the topics you want in your brief. We'll pull the right news sources automatically.</p>
+            <div class="checkbox-grid">
+                <label class="checkbox-item checked">
+                    <input type="checkbox" name="interest" value="macro" checked>
+                    <span>Macro / Geopolitics</span>
+                </label>
+                <label class="checkbox-item checked">
+                    <input type="checkbox" name="interest" value="markets" checked>
+                    <span>Public Markets</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="tech">
+                    <span>Tech / Startups</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="ai">
+                    <span>AI / Machine Learning</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="crypto">
+                    <span>Crypto / Web3</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="pe_re">
+                    <span>PE / Real Estate</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="israel">
+                    <span>Israel / Middle East</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="energy">
+                    <span>Energy / Climate</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="healthcare">
+                    <span>Healthcare / Biotech</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="interest" value="deals">
+                    <span>VC / Fundraising</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- MARKET DATA -->
+        <div class="section">
+            <div class="section-title">Market Data</div>
+            <p style="font-size: 13px; color: #666; margin-bottom: 14px;">Pick the indices, currencies, and commodities you want tracked.</p>
+
+            <div class="market-group">
+                <div class="market-group-title">Indices</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item checked"><input type="checkbox" name="index" value="sp500" checked><span>S&P 500</span></label>
+                    <label class="checkbox-item checked"><input type="checkbox" name="index" value="nasdaq" checked><span>Nasdaq</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="dowjones"><span>Dow Jones</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="russell"><span>Russell 2000</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="ftse100"><span>FTSE 100</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="dax"><span>DAX</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="nikkei"><span>Nikkei 225</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="index" value="ta125"><span>TA-125 (Israel)</span></label>
+                </div>
+            </div>
+
+            <div class="market-group">
+                <div class="market-group-title">Currencies</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item checked"><input type="checkbox" name="fx" value="eurusd" checked><span>EUR/USD</span></label>
+                    <label class="checkbox-item checked"><input type="checkbox" name="fx" value="gbpusd" checked><span>GBP/USD</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="fx" value="usdjpy"><span>USD/JPY</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="fx" value="usdils"><span>USD/ILS</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="fx" value="usdcad"><span>USD/CAD</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="fx" value="usdchf"><span>USD/CHF</span></label>
+                </div>
+            </div>
+
+            <div class="market-group">
+                <div class="market-group-title">Commodities</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item checked"><input type="checkbox" name="commodity" value="gold" checked><span>Gold</span></label>
+                    <label class="checkbox-item checked"><input type="checkbox" name="commodity" value="oil_wti" checked><span>Oil (WTI)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="commodity" value="oil_brent"><span>Oil (Brent)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="commodity" value="silver"><span>Silver</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="commodity" value="copper"><span>Copper</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="commodity" value="natgas"><span>Natural Gas</span></label>
+                </div>
+            </div>
+
+            <div class="market-group">
+                <div class="market-group-title">Sectors</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item checked"><input type="checkbox" name="sector" value="xlk" checked><span>Tech (XLK)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xle"><span>Energy (XLE)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlf"><span>Financials (XLF)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlv"><span>Healthcare (XLV)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xli"><span>Industrials (XLI)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlre"><span>Real Estate (XLRE)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="sector" value="ita"><span>Defense (ITA)</span></label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Generate My Profile</button>
+    </form>
+
+    <div class="success" id="success">
+        <h2>Profile generated</h2>
+        <p>Your config file has been downloaded. Send it to your account manager to activate your daily brief.</p>
+        <div class="filename" id="filename"></div>
+    </div>
+</div>
+
+<script>
+// Toggle checked class on checkbox items
+document.querySelectorAll('.checkbox-item').forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change', () => {
+        item.classList.toggle('checked', cb.checked);
+    });
+});
+
+// Data mappings
+const INDICES = {
+    sp500:    { symbol: "^GSPC",      label: "S&P 500" },
+    nasdaq:   { symbol: "^IXIC",      label: "Nasdaq" },
+    dowjones: { symbol: "^DJI",       label: "Dow Jones" },
+    russell:  { symbol: "^RUT",       label: "Russell 2000" },
+    ftse100:  { symbol: "^FTSE",      label: "FTSE 100" },
+    dax:      { symbol: "^GDAXI",     label: "DAX" },
+    nikkei:   { symbol: "^N225",      label: "Nikkei 225" },
+    ta125:    { symbol: "^TA125.TA",  label: "TA-125" },
+};
+
+const FX = {
+    eurusd: { symbol: "EURUSD=X", label: "EUR/USD" },
+    gbpusd: { symbol: "GBPUSD=X", label: "GBP/USD" },
+    usdjpy: { symbol: "USDJPY=X", label: "USD/JPY" },
+    usdils: { symbol: "USDILS=X", label: "USD/ILS" },
+    usdcad: { symbol: "USDCAD=X", label: "USD/CAD" },
+    usdchf: { symbol: "USDCHF=X", label: "USD/CHF" },
+};
+
+const COMMODITIES = {
+    gold:      { symbol: "GC=F",  label: "Gold" },
+    oil_wti:   { symbol: "CL=F",  label: "Oil (WTI)" },
+    oil_brent: { symbol: "BZ=F",  label: "Oil (Brent)" },
+    silver:    { symbol: "SI=F",  label: "Silver" },
+    copper:    { symbol: "HG=F",  label: "Copper" },
+    natgas:    { symbol: "NG=F",  label: "Natural Gas" },
+};
+
+const SECTORS = {
+    xlk:  { symbol: "XLK",  label: "Tech (XLK)" },
+    xle:  { symbol: "XLE",  label: "Energy (XLE)" },
+    xlf:  { symbol: "XLF",  label: "Financials (XLF)" },
+    xlv:  { symbol: "XLV",  label: "Healthcare (XLV)" },
+    xli:  { symbol: "XLI",  label: "Industrials (XLI)" },
+    xlre: { symbol: "XLRE", label: "Real Estate (XLRE)" },
+    ita:  { symbol: "ITA",  label: "Defense (ITA)" },
+};
+
+// Interest -> RSS feeds mapping
+const INTEREST_FEEDS = {
+    macro: [
+        { name: "WSJ",       url: "https://news.google.com/rss/search?q=site:wsj.com&hl=en",       category: "macro" },
+        { name: "Bloomberg",  url: "https://feeds.bloomberg.com/markets/news.rss",                   category: "macro" },
+        { name: "Reuters",    url: "https://news.google.com/rss/search?q=site:reuters.com&hl=en",    category: "macro" },
+    ],
+    markets: [
+        { name: "Seeking Alpha", url: "https://seekingalpha.com/market_currents.xml",                category: "markets" },
+        { name: "MarketWatch",   url: "https://news.google.com/rss/search?q=site:marketwatch.com&hl=en", category: "markets" },
+    ],
+    tech: [
+        { name: "TechCrunch",   url: "https://techcrunch.com/feed/",                                 category: "tech" },
+        { name: "Hacker News",  url: "https://hnrss.org/frontpage",                                  category: "tech" },
+    ],
+    ai: [
+        { name: "AI News",      url: "https://news.google.com/rss/search?q=artificial+intelligence+AI+LLM&hl=en", category: "tech" },
+    ],
+    crypto: [
+        { name: "CoinDesk",    url: "https://www.coindesk.com/arc/outboundfeeds/rss/",               category: "crypto" },
+        { name: "Crypto News", url: "https://news.google.com/rss/search?q=bitcoin+ethereum+crypto&hl=en", category: "crypto" },
+    ],
+    pe_re: [
+        { name: "PE Hub",      url: "https://www.pehub.com/feed/",                                   category: "pe_re" },
+        { name: "RE News",     url: "https://news.google.com/rss/search?q=commercial+real+estate+REIT&hl=en", category: "pe_re" },
+    ],
+    israel: [
+        { name: "Israel Tech",     url: "https://news.google.com/rss/search?q=israel+tech+startup+funding&hl=en", category: "israeli_tech" },
+        { name: "Times of Israel", url: "https://www.timesofisrael.com/feed/",                       category: "geopolitics" },
+    ],
+    energy: [
+        { name: "Energy News",  url: "https://news.google.com/rss/search?q=oil+gas+energy+renewable&hl=en", category: "energy" },
+    ],
+    healthcare: [
+        { name: "STAT News", url: "https://news.google.com/rss/search?q=site:statnews.com&hl=en",   category: "healthcare" },
+        { name: "Biotech",   url: "https://news.google.com/rss/search?q=biotech+pharma+FDA+drug+approval&hl=en", category: "healthcare" },
+    ],
+    deals: [
+        { name: "M&A Deals",  url: "https://news.google.com/rss/search?q=mergers+acquisitions+deal+buyout&hl=en", category: "pe_re" },
+        { name: "PitchBook",  url: "https://news.google.com/rss/search?q=site:pitchbook.com&hl=en", category: "pe_re" },
+    ],
+};
+
+// Interest -> news category mapping
+const INTEREST_CATEGORIES = {
+    macro:      { key: "macro_geopolitics", label: "Macro / Geopolitics" },
+    markets:    { key: "public_markets",    label: "Public Markets" },
+    tech:       { key: "tech",              label: "Tech & Innovation" },
+    ai:         null, // rolls into tech
+    crypto:     { key: "crypto",            label: "Crypto & Web3" },
+    pe_re:      { key: "pe_re",             label: "PE / Real Estate" },
+    israel:     { key: "israeli_tech",      label: "Israeli Tech" },
+    energy:     { key: "energy",            label: "Energy & Climate" },
+    healthcare: { key: "healthcare",        label: "Healthcare & Biotech" },
+    deals:      { key: "fundraising",       label: "Fundraising & Deals" },
+};
+
+function getChecked(name) {
+    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+}
+
+function buildYaml(data) {
+    let y = '';
+    y += `# Daily Brief Profile — ${data.initials}\n`;
+    y += `# Generated ${new Date().toISOString().split('T')[0]}\n\n`;
+
+    y += `recipient_email: "${data.email}"\n\n`;
+    y += `calendar_enabled: false\n\n`;
+
+    y += `branding:\n`;
+    y += `  monogram: "${data.initials}"\n`;
+    y += `  subtitle: "Daily Intelligence Brief"\n\n`;
+
+    y += `timezone: "${data.timezone}"\n\n`;
+
+    // Market symbols
+    y += `market_symbols:\n`;
+
+    y += `  indices:\n`;
+    data.indices.forEach(k => {
+        const d = INDICES[k];
+        y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
+    });
+
+    y += `  fx:\n`;
+    data.fx.forEach(k => {
+        const d = FX[k];
+        y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
+    });
+
+    y += `  commodities:\n`;
+    data.commodities.forEach(k => {
+        const d = COMMODITIES[k];
+        y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
+    });
+
+    y += `  sectors:\n`;
+    data.sectors.forEach(k => {
+        const d = SECTORS[k];
+        y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
+    });
+
+    // RSS feeds
+    y += `\nrss_feeds:\n`;
+    const feeds = [];
+    data.interests.forEach(interest => {
+        (INTEREST_FEEDS[interest] || []).forEach(f => {
+            // Deduplicate by URL
+            if (!feeds.find(existing => existing.url === f.url)) {
+                feeds.push(f);
+            }
+        });
+    });
+    feeds.forEach(f => {
+        y += `  - { name: "${f.name}", url: "${f.url}", category: "${f.category}" }\n`;
+    });
+
+    // News categories
+    y += `\nnews_categories:\n`;
+    const cats = [];
+    const seenKeys = new Set();
+    data.interests.forEach(interest => {
+        const cat = INTEREST_CATEGORIES[interest];
+        if (cat && !seenKeys.has(cat.key)) {
+            cats.push(cat);
+            seenKeys.add(cat.key);
+        }
+    });
+    // Always add "also_notable" as catch-all
+    cats.push({ key: "also_notable", label: "Also Notable" });
+    cats.forEach(c => {
+        y += `  - { key: "${c.key}", label: "${c.label}" }\n`;
+    });
+
+    // Synthesis settings
+    y += `\nsynthesis:\n`;
+    y += `  model: "claude-sonnet-4-20250514"\n`;
+    y += `  max_output_tokens: 4096\n`;
+    y += `  max_entries_for_synthesis: 50\n`;
+
+    // Thresholds
+    y += `\nrss_fetch_timeout: 10\n`;
+    y += `portfolio_anomaly_threshold: 3.0\n`;
+    y += `index_anomaly_threshold: 2.0\n`;
+    y += `email_subject_format: "{monogram} Daily Brief - {day_date}"\n`;
+
+    return y;
+}
+
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const initials = document.getElementById('initials').value.trim().toUpperCase();
+    const email = document.getElementById('email').value.trim();
+    const timezone = document.getElementById('timezone').value;
+
+    const data = {
+        initials,
+        email,
+        timezone,
+        interests: getChecked('interest'),
+        indices: getChecked('index'),
+        fx: getChecked('fx'),
+        commodities: getChecked('commodity'),
+        sectors: getChecked('sector'),
+    };
+
+    if (data.interests.length === 0) {
+        alert('Please select at least one topic.');
+        return;
+    }
+
+    const yaml = buildYaml(data);
+    const filename = initials.toLowerCase().replace(/[^a-z]/g, '') + '.yaml';
+
+    // Download
+    const blob = new Blob([yaml], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Show success
+    document.getElementById('profileForm').style.display = 'none';
+    document.getElementById('success').classList.add('visible');
+    document.getElementById('filename').textContent = filename;
+});
+</script>
+
+</body>
+</html>
