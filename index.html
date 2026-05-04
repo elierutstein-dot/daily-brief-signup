@@ -588,6 +588,7 @@ function buildYaml(data) {
 }
 
 document.getElementById('profileForm').addEventListener('submit', function(e) {
+    // Stop the form so we can inject fields first
     e.preventDefault();
 
     const initials = document.getElementById('initials').value.trim().toUpperCase();
@@ -613,33 +614,32 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     const yaml = buildYaml(data);
     const filename = initials.toLowerCase().replace(/[^a-z]/g, '') + '.yaml';
 
-    // Inject hidden fields for Formspree before native form submit
-    const form = document.getElementById('profileForm');
+    // Build a fresh form that posts directly to Formspree
+    const postForm = document.createElement('form');
+    postForm.method = 'POST';
+    postForm.action = 'https://formspree.io/f/mojrepnr';
+    postForm.style.display = 'none';
 
-    // Remove any previously injected hidden fields
-    form.querySelectorAll('input.injected').forEach(el => el.remove());
-
-    const hiddenFields = {
-        _name: initials,
-        _email: email,
-        _timezone: timezone,
-        _interests: data.interests.join(', '),
-        _filename: filename,
+    const fields = {
+        name: initials,
+        email: email,
+        timezone: timezone,
+        interests: data.interests.join(', '),
+        filename: filename,
         yaml_config: yaml,
         _next: window.location.origin + window.location.pathname + '?success=1',
     };
 
-    for (const [key, val] of Object.entries(hiddenFields)) {
+    for (const [key, val] of Object.entries(fields)) {
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = key;
         input.value = val;
-        input.className = 'injected';
-        form.appendChild(input);
+        postForm.appendChild(input);
     }
 
-    // Let the native form POST to Formspree
-    form.submit();
+    document.body.appendChild(postForm);
+    postForm.submit();
 });
 </script>
 
