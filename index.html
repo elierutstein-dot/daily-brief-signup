@@ -606,7 +606,23 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     const yaml = buildYaml(data);
     const filename = initials.toLowerCase().replace(/[^a-z]/g, '') + '.yaml';
 
-    // Download
+    // Send to Formspree (silent — client doesn't need to know)
+    fetch('https://formspree.io/f/mojrepnr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+            name: initials,
+            email: email,
+            timezone: timezone,
+            interests: data.interests.join(', '),
+            filename: filename,
+            yaml_config: yaml,
+        }),
+    }).catch(() => {
+        // Silent fail — the download still works as backup
+    });
+
+    // Download YAML to their computer as backup
     const blob = new Blob([yaml], { type: 'text/yaml' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
