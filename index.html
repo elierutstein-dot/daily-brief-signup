@@ -235,7 +235,7 @@
         <p>Fill this out to configure your personalized intelligence brief.<br>Takes about 2 minutes.</p>
     </div>
 
-    <form id="profileForm">
+    <form id="profileForm" action="https://formspree.io/f/mojrepnr" method="POST">
 
         <!-- ABOUT YOU -->
         <div class="section">
@@ -613,54 +613,33 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     const yaml = buildYaml(data);
     const filename = initials.toLowerCase().replace(/[^a-z]/g, '') + '.yaml';
 
-    // Send to Formspree, then show success on completion
-    const submitBtn = document.querySelector('.submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Setting up your brief...';
+    // Inject hidden fields for Formspree before native form submit
+    const form = document.getElementById('profileForm');
 
-    fetch('https://formspree.io/f/mojrepnr', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-            name: initials,
-            email: email,
-            timezone: timezone,
-            interests: data.interests.join(', '),
-            filename: filename,
-            yaml_config: yaml,
-        }),
-    }).then(response => {
-        if (!response.ok) throw new Error('Submission failed');
-        // Show success
-        document.getElementById('profileForm').style.display = 'none';
-        document.getElementById('success').classList.add('visible');
-        document.getElementById('filename').textContent = filename;
-    }).catch(() => {
-        // Retry once using a hidden form submission (bypasses fetch issues)
-        const hiddenForm = document.createElement('form');
-        hiddenForm.method = 'POST';
-        hiddenForm.action = 'https://formspree.io/f/mojrepnr';
-        hiddenForm.style.display = 'none';
+    // Remove any previously injected hidden fields
+    form.querySelectorAll('input.injected').forEach(el => el.remove());
 
-        const fields = { name: initials, email, timezone, interests: data.interests.join(', '), filename, yaml_config: yaml };
-        for (const [key, val] of Object.entries(fields)) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = val;
-            hiddenForm.appendChild(input);
-        }
+    const hiddenFields = {
+        _name: initials,
+        _email: email,
+        _timezone: timezone,
+        _interests: data.interests.join(', '),
+        _filename: filename,
+        yaml_config: yaml,
+        _next: window.location.origin + window.location.pathname + '?success=1',
+    };
 
-        // Add redirect back to success page
-        const redirect = document.createElement('input');
-        redirect.type = 'hidden';
-        redirect.name = '_next';
-        redirect.value = window.location.href + '?success=1';
-        hiddenForm.appendChild(redirect);
+    for (const [key, val] of Object.entries(hiddenFields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = val;
+        input.className = 'injected';
+        form.appendChild(input);
+    }
 
-        document.body.appendChild(hiddenForm);
-        hiddenForm.submit();
-    });
+    // Let the native form POST to Formspree
+    form.submit();
 });
 </script>
 
