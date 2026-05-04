@@ -383,6 +383,13 @@
 </div>
 
 <script>
+// Handle redirect back from Formspree fallback submission
+if (window.location.search.includes('success=1')) {
+    document.getElementById('profileForm').style.display = 'none';
+    document.getElementById('success').classList.add('visible');
+    document.getElementById('filename').textContent = 'Your profile has been submitted.';
+}
+
 // Toggle checked class on checkbox items
 document.querySelectorAll('.checkbox-item').forEach(item => {
     const cb = item.querySelector('input[type="checkbox"]');
@@ -606,7 +613,11 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     const yaml = buildYaml(data);
     const filename = initials.toLowerCase().replace(/[^a-z]/g, '') + '.yaml';
 
-    // Send to Formspree (silent — client doesn't need to know)
+    // Send to Formspree, then show success on completion
+    const submitBtn = document.querySelector('.submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Setting up your brief...';
+
     fetch('https://formspree.io/f/mojrepnr', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -618,23 +629,38 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
             filename: filename,
             yaml_config: yaml,
         }),
+    }).then(response => {
+        if (!response.ok) throw new Error('Submission failed');
+        // Show success
+        document.getElementById('profileForm').style.display = 'none';
+        document.getElementById('success').classList.add('visible');
+        document.getElementById('filename').textContent = filename;
     }).catch(() => {
-        // Silent fail — the download still works as backup
+        // Retry once using a hidden form submission (bypasses fetch issues)
+        const hiddenForm = document.createElement('form');
+        hiddenForm.method = 'POST';
+        hiddenForm.action = 'https://formspree.io/f/mojrepnr';
+        hiddenForm.style.display = 'none';
+
+        const fields = { name: initials, email, timezone, interests: data.interests.join(', '), filename, yaml_config: yaml };
+        for (const [key, val] of Object.entries(fields)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = val;
+            hiddenForm.appendChild(input);
+        }
+
+        // Add redirect back to success page
+        const redirect = document.createElement('input');
+        redirect.type = 'hidden';
+        redirect.name = '_next';
+        redirect.value = window.location.href + '?success=1';
+        hiddenForm.appendChild(redirect);
+
+        document.body.appendChild(hiddenForm);
+        hiddenForm.submit();
     });
-
-    // Download YAML to their computer as backup
-    const blob = new Blob([yaml], { type: 'text/yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    // Show success
-    document.getElementById('profileForm').style.display = 'none';
-    document.getElementById('success').classList.add('visible');
-    document.getElementById('filename').textContent = filename;
 });
 </script>
 
