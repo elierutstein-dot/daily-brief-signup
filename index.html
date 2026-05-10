@@ -359,6 +359,18 @@
             </div>
 
             <div class="market-group">
+                <div class="market-group-title">Crypto</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="btc"><span>Bitcoin (BTC)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="eth"><span>Ethereum (ETH)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="sol"><span>Solana (SOL)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="xrp"><span>XRP</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="ada"><span>Cardano (ADA)</span></label>
+                    <label class="checkbox-item"><input type="checkbox" name="crypto_asset" value="doge"><span>Dogecoin (DOGE)</span></label>
+                </div>
+            </div>
+
+            <div class="market-group">
                 <div class="market-group-title">Sectors</div>
                 <div class="checkbox-grid">
                     <label class="checkbox-item checked"><input type="checkbox" name="sector" value="xlk" checked><span>Tech (XLK)</span></label>
@@ -426,6 +438,15 @@ const COMMODITIES = {
     silver:    { symbol: "SI=F",  label: "Silver" },
     copper:    { symbol: "HG=F",  label: "Copper" },
     natgas:    { symbol: "NG=F",  label: "Natural Gas" },
+};
+
+const CRYPTO = {
+    btc:  { symbol: "BTC-USD",  label: "Bitcoin (BTC)" },
+    eth:  { symbol: "ETH-USD",  label: "Ethereum (ETH)" },
+    sol:  { symbol: "SOL-USD",  label: "Solana (SOL)" },
+    xrp:  { symbol: "XRP-USD",  label: "XRP" },
+    ada:  { symbol: "ADA-USD",  label: "Cardano (ADA)" },
+    doge: { symbol: "DOGE-USD", label: "Dogecoin (DOGE)" },
 };
 
 const SECTORS = {
@@ -540,6 +561,14 @@ function buildYaml(data) {
         y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
     });
 
+    if (data.crypto_assets.length > 0) {
+        y += `  crypto:\n`;
+        data.crypto_assets.forEach(k => {
+            const d = CRYPTO[k];
+            y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
+        });
+    }
+
     // RSS feeds
     y += `\nrss_feeds:\n`;
     const feeds = [];
@@ -603,6 +632,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
         indices: getChecked('index'),
         fx: getChecked('fx'),
         commodities: getChecked('commodity'),
+        crypto_assets: getChecked('crypto_asset'),
         sectors: getChecked('sector'),
     };
 
