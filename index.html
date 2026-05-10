@@ -219,6 +219,72 @@
             font-size: 14px;
         }
 
+        /* Ticker tag input */
+        .ticker-input-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            min-height: 44px;
+            cursor: text;
+            transition: border-color 0.2s;
+        }
+
+        .ticker-input-wrapper:focus-within {
+            border-color: #444;
+        }
+
+        .ticker-tags {
+            display: contents;
+        }
+
+        .ticker-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 5px;
+            padding: 4px 8px 4px 10px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: #e0e0e0;
+            letter-spacing: 0.5px;
+        }
+
+        .ticker-tag .remove {
+            cursor: pointer;
+            color: #666;
+            font-size: 15px;
+            line-height: 1;
+            padding: 0 2px;
+            transition: color 0.15s;
+        }
+
+        .ticker-tag .remove:hover {
+            color: #ff5555;
+        }
+
+        .ticker-field {
+            flex: 1;
+            min-width: 120px;
+            border: none !important;
+            background: transparent !important;
+            padding: 4px 0 !important;
+            margin: 0 !important;
+            font-size: 14px;
+            color: #e0e0e0;
+            outline: none;
+        }
+
+        .ticker-field::placeholder {
+            color: #444;
+        }
+
         @media (max-width: 480px) {
             .container { padding: 32px 16px 64px; }
             .checkbox-grid { grid-template-columns: 1fr; }
@@ -371,16 +437,13 @@
             </div>
 
             <div class="market-group">
-                <div class="market-group-title">Sectors</div>
-                <div class="checkbox-grid">
-                    <label class="checkbox-item checked"><input type="checkbox" name="sector" value="xlk" checked><span>Tech (XLK)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xle"><span>Energy (XLE)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlf"><span>Financials (XLF)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlv"><span>Healthcare (XLV)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xli"><span>Industrials (XLI)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="xlre"><span>Real Estate (XLRE)</span></label>
-                    <label class="checkbox-item"><input type="checkbox" name="sector" value="ita"><span>Defense (ITA)</span></label>
+                <div class="market-group-title">Custom Tickers <span style="font-weight: 400; text-transform: none; letter-spacing: 0; color: #555; font-size: 11px;">(optional)</span></div>
+                <p style="font-size: 13px; color: #555; margin-bottom: 10px;">Add any stocks, ETFs, or assets you want tracked. Use Yahoo Finance symbols.</p>
+                <div class="ticker-input-wrapper">
+                    <div class="ticker-tags" id="tickerTags"></div>
+                    <input type="text" id="tickerInput" class="ticker-field" placeholder="Type a ticker and press Enter (e.g. AAPL)" autocomplete="off" spellcheck="false">
                 </div>
+                <p style="font-size: 11px; color: #444; margin-top: 6px;">Examples: AAPL, NVDA, TSLA, VIX, XLK, BRK-B</p>
             </div>
         </div>
 
@@ -401,6 +464,36 @@ if (window.location.search.includes('success=1')) {
     document.getElementById('success').classList.add('visible');
     document.getElementById('filename').textContent = 'Your profile has been submitted.';
 }
+
+// Ticker tag input
+const tickerInput = document.getElementById('tickerInput');
+const tickerTags = document.getElementById('tickerTags');
+const customTickers = [];
+
+document.querySelector('.ticker-input-wrapper').addEventListener('click', () => tickerInput.focus());
+
+tickerInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab') {
+        e.preventDefault();
+        const val = this.value.trim().toUpperCase().replace(/[^A-Z0-9.\-=^]/g, '');
+        if (val && !customTickers.includes(val)) {
+            customTickers.push(val);
+            const tag = document.createElement('span');
+            tag.className = 'ticker-tag';
+            tag.innerHTML = val + '<span class="remove">&times;</span>';
+            tag.querySelector('.remove').addEventListener('click', () => {
+                customTickers.splice(customTickers.indexOf(val), 1);
+                tag.remove();
+            });
+            tickerTags.appendChild(tag);
+        }
+        this.value = '';
+    }
+    if (e.key === 'Backspace' && this.value === '' && customTickers.length > 0) {
+        const last = customTickers.pop();
+        tickerTags.lastElementChild.remove();
+    }
+});
 
 // Toggle checked class on checkbox items
 document.querySelectorAll('.checkbox-item').forEach(item => {
@@ -449,15 +542,7 @@ const CRYPTO = {
     doge: { symbol: "DOGE-USD", label: "Dogecoin (DOGE)" },
 };
 
-const SECTORS = {
-    xlk:  { symbol: "XLK",  label: "Tech (XLK)" },
-    xle:  { symbol: "XLE",  label: "Energy (XLE)" },
-    xlf:  { symbol: "XLF",  label: "Financials (XLF)" },
-    xlv:  { symbol: "XLV",  label: "Healthcare (XLV)" },
-    xli:  { symbol: "XLI",  label: "Industrials (XLI)" },
-    xlre: { symbol: "XLRE", label: "Real Estate (XLRE)" },
-    ita:  { symbol: "ITA",  label: "Defense (ITA)" },
-};
+// SECTORS removed — replaced by custom ticker input
 
 // Interest -> RSS feeds mapping
 const INTEREST_FEEDS = {
@@ -555,11 +640,13 @@ function buildYaml(data) {
         y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
     });
 
-    y += `  sectors:\n`;
-    data.sectors.forEach(k => {
-        const d = SECTORS[k];
-        y += `    ${k}: { symbol: "${d.symbol}", label: "${d.label}" }\n`;
-    });
+    if (data.custom_tickers.length > 0) {
+        y += `  watchlist:\n`;
+        data.custom_tickers.forEach(t => {
+            const key = t.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            y += `    ${key}: { symbol: "${t}", label: "${t}" }\n`;
+        });
+    }
 
     if (data.crypto_assets.length > 0) {
         y += `  crypto:\n`;
@@ -633,7 +720,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
         fx: getChecked('fx'),
         commodities: getChecked('commodity'),
         crypto_assets: getChecked('crypto_asset'),
-        sectors: getChecked('sector'),
+        custom_tickers: [...customTickers],
     };
 
     if (data.interests.length === 0) {
